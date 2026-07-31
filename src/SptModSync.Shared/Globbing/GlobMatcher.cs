@@ -62,3 +62,21 @@ public static class GlobMatcher
         return true;
     }
 }
+
+public sealed class PatternMatcher
+{
+    private readonly Matcher? _matcher;
+
+    public PatternMatcher(IEnumerable<string> patterns)
+    {
+        var patternList = patterns.ToList();
+        if (patternList.Count == 0) return;
+
+        _matcher = new Matcher(StringComparison.OrdinalIgnoreCase);
+        foreach (var pattern in patternList)
+            _matcher.AddInclude(pattern);
+    }
+
+    public bool Matches(string relativePath)
+        => _matcher != null && _matcher.Match(relativePath.Replace('\\', '/')).HasMatches;
+}
