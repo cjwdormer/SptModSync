@@ -1,0 +1,25 @@
+{
+  "ConfigVersion": "1.0.0",
+  "IncludePatterns": [
+    "SptModSync.Updater.exe",
+    "BepInEx/patchers/**/*",
+    "BepInEx/plugins/**/*"
+  ],
+  "ExcludePatterns": [
+    "**/*.log",
+    "BepInEx/plugins/SAIN/**/*.json",
+    "BepInEx/patchers/spt-prepatch.dll",
+    "BepInEx/plugins/spt/**/*",
+    "BepInEx/plugins/DynamicMaps/**/*"
+  ],
+  "FileHashBlacklist": [],
+  "HeadlessIncludePatterns": [
+    "BepInEx/patchers/**/*"
+  ],
+  "HeadlessExcludePatterns": [
+    "BepInEx/plugins/Fika/**/*"
+  ],
+  "SptRootDirectory": "",
+  "VerboseLogging": false,
+  "SptVersion": "4.0.13 - 2891fd"
+}

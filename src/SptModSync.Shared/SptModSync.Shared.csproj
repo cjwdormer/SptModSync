@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- Built for both the .NET 9 server/updater and the .NET Framework 4.7.2 client (BepInEx/Unity).
+         Keep this project free of anything that only exists on one side. -->
+    <TargetFrameworks>net9.0;net472</TargetFrameworks>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <RootNamespace>SptModSync.Shared</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.FileSystemGlobbing" Version="9.0.12" />
+    <PackageReference Include="System.IO.Hashing" Version="9.0.9" />
+    <!-- System.Text.Json ships in the framework on net9.0; net472 needs the package explicitly. -->
+    <PackageReference Include="System.Text.Json" Version="9.0.9" Condition="'$(TargetFramework)' == 'net472'" />
+  </ItemGroup>
+
+</Project>

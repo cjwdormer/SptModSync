@@ -1,0 +1,16 @@
+bin/
+obj/
+.vs/
+.idea/
+*.user
+*.suo
+*.ps1
+
+# Personal machine paths - see build/Directory.Build.local.props.example
+build/Directory.Build.local.props
+
+# Generated at runtime, not source
+src/SptModSync.Server/config/serverConfig.json
+**/clientConfig.json
+SptModSync.pending.json
+SptModSync.Updater.log
