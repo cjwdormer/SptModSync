@@ -2,6 +2,7 @@ bin/
 obj/
 .vs/
 .idea/
+dist/
 *.user
 *.suo
 *.ps1
