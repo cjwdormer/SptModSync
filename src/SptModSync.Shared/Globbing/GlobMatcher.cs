@@ -39,18 +39,6 @@ public static class GlobMatcher
             .ToList();
     }
 
-    public static bool MatchesAny(string relativePath, IEnumerable<string> patterns)
-    {
-        var patternList = patterns.ToList();
-        if (patternList.Count == 0) return false;
-
-        var matcher = new Matcher(StringComparison.OrdinalIgnoreCase);
-        foreach (var pattern in patternList)
-            matcher.AddInclude(pattern);
-
-        return matcher.Match(relativePath.Replace('\\', '/')).HasMatches;
-    }
-
     public static bool IsSafeRelativePattern(string pattern)
     {
         if (string.IsNullOrWhiteSpace(pattern)) return false;
