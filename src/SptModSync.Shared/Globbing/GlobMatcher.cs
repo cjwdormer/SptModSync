@@ -22,6 +22,23 @@ public static class GlobMatcher
             .ToList();
     }
 
+    public static List<string> FilterOutExcluded(IEnumerable<string> relativePaths, IEnumerable<string> excludePatterns)
+    {
+        var excludeList = excludePatterns.ToList();
+        var paths = relativePaths.ToList();
+        if (excludeList.Count == 0) return paths;
+
+        var matcher = new Matcher(StringComparison.OrdinalIgnoreCase);
+        matcher.AddInclude("**/*");
+        foreach (var pattern in excludeList)
+            matcher.AddExclude(pattern);
+
+        return matcher.Match(paths).Files
+            .Select(f => f.Path)
+            .OrderBy(p => p, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+    }
+
     public static bool MatchesAny(string relativePath, IEnumerable<string> patterns)
     {
         var patternList = patterns.ToList();

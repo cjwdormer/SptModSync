@@ -87,8 +87,7 @@ public sealed class ManifestBuilder
         var candidatePaths = GlobMatcher.ResolveIncludedFiles(
             sptRootDirectory, config.IncludePatterns, Enumerable.Empty<string>());
 
-        var relativePaths = GlobMatcher.ResolveIncludedFiles(
-            sptRootDirectory, config.IncludePatterns, config.ExcludePatterns);
+        var relativePaths = GlobMatcher.FilterOutExcluded(candidatePaths, config.ExcludePatterns);
 
         var excludedPaths = candidatePaths
             .Except(relativePaths, StringComparer.OrdinalIgnoreCase)
