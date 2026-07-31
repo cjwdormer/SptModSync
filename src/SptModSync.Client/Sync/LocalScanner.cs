@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -11,6 +12,8 @@ namespace SptModSync.Client.Sync
 {
     public sealed class LocalScanner
     {
+        private const int MaxConcurrentHashes = 4;
+
         private readonly string _gameRootDirectory;
 
         public LocalScanner(string gameRootDirectory)
@@ -21,7 +24,6 @@ namespace SptModSync.Client.Sync
         public async Task<Dictionary<string, string>> HashKnownPathsAsync(
             Manifest manifest, ClientConfig clientConfig, Action<string>? log = null, CancellationToken ct = default)
         {
-            var result = new Dictionary<string, string>();
             var candidates = new HashSet<string>(System.StringComparer.OrdinalIgnoreCase);
             foreach (var f in manifest.Files) candidates.Add(f.RelativePath);
             foreach (var p in clientConfig.TrackedFiles.Keys) candidates.Add(p);
@@ -34,23 +36,41 @@ namespace SptModSync.Client.Sync
             var totalBytes = existing.Sum(x => new FileInfo(x.abs).Length);
             log?.Invoke($"[SptModSync] Hashing {existing.Count} local file(s), {totalBytes / 1024.0 / 1024.0:F0} MB total...");
 
+            var result = new ConcurrentDictionary<string, string>();
             var done = 0;
+            var reportLock = new object();
             var lastReport = DateTime.UtcNow;
-            foreach (var (relativePath, absolutePath) in existing)
-            {
-                var hash = await FileHasher.HashFileAsync(absolutePath, ct).ConfigureAwait(false);
-                result[relativePath] = hash;
-                done++;
 
-                if ((DateTime.UtcNow - lastReport).TotalSeconds >= 5)
+            using var throttle = new SemaphoreSlim(MaxConcurrentHashes);
+
+            var hashTasks = existing.Select(async item =>
+            {
+                await throttle.WaitAsync(ct).ConfigureAwait(false);
+                try
                 {
-                    log?.Invoke($"[SptModSync] Hashed {done}/{existing.Count} local file(s)...");
-                    lastReport = DateTime.UtcNow;
+                    var hash = await FileHasher.HashFileAsync(item.abs, ct).ConfigureAwait(false);
+                    result[item.rel] = hash;
+
+                    var current = Interlocked.Increment(ref done);
+                    lock (reportLock)
+                    {
+                        if ((DateTime.UtcNow - lastReport).TotalSeconds >= 5)
+                        {
+                            log?.Invoke($"[SptModSync] Hashed {current}/{existing.Count} local file(s)...");
+                            lastReport = DateTime.UtcNow;
+                        }
+                    }
                 }
-            }
+                finally
+                {
+                    throttle.Release();
+                }
+            });
+
+            await Task.WhenAll(hashTasks).ConfigureAwait(false);
 
             log?.Invoke($"[SptModSync] Local scan complete ({existing.Count} file(s) hashed).");
-            return result;
+            return new Dictionary<string, string>(result);
         }
     }
 }
