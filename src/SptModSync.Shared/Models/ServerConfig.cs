@@ -7,6 +7,11 @@ public sealed class ServerConfig
     public List<string> IncludePatterns { get; set; } = new()
     {
         "SptModSync.Updater.exe",
+        "hostfxr.dll",
+        "hostpolicy.dll",
+        "coreclr.dll",
+        "clrjit.dll",
+        "clrcompression.dll",
         "BepInEx/patchers/**/*",
         "BepInEx/plugins/**/*"
     };

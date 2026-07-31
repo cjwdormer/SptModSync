@@ -2,6 +2,11 @@
   "ConfigVersion": "1.0.0",
   "IncludePatterns": [
     "SptModSync.Updater.exe",
+    "hostfxr.dll",
+    "hostpolicy.dll",
+    "coreclr.dll",
+    "clrjit.dll",
+    "clrcompression.dll",
     "BepInEx/patchers/**/*",
     "BepInEx/plugins/**/*"
   ],
