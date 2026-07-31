@@ -214,23 +214,15 @@ no prompt.
 
 **Headless clients need a reduced mod set.** They need only a handful of the mods your players run,
 and most client plugins will destabilise them. Set `HeadlessIncludePatterns` in `serverConfig.json`
-and headless instances are offered only those:
+and headless instances are offered only those for example:
 
 ```json
 "HeadlessIncludePatterns": [
-  "BepInEx/plugins/acidphantasm-botplacementsystem/**/*",
-  "BepInEx/plugins/DrakiaXYZ-Waypoints/**/*",
-  "BepInEx/plugins/Fika/**/*",
-  "BepInEx/plugins/MergeConsumables/**/*",
-  "BepInEx/plugins/ozen-Foldables/**/*",
-  "BepInEx/plugins/SAIN/**/*",
-  "BepInEx/plugins/QuestingBots/**/*",
-  "BepInEx/plugins/s8_SPT_PatchCRC32/**/*",
-  "BepInEx/plugins/WTT-ClientCommonLib/**/*",
-  "BepInEx/plugins/DrakiaXYZ-BigBrain.dll",
-  "BepInEx/plugins/NerfBotGrenades.dll",
-  "BepInEx/plugins/Tyfon.UIFixes.dll",
-  "BepInEx/plugins/Tyfon.UIFixes.Net.dll"
+    "BepInEx/plugins/acidphantasm-botplacementsystem/**/*",
+    "BepInEx/plugins/DrakiaXYZ-Waypoints/**/*",
+    "BepInEx/plugins/DrakiaXYZ-BigBrain.dll",
+    "BepInEx/plugins/QuestingBots/**/*",
+    "BepInEx/plugins/skwizzy.LootingBots.dll"
 ],
 "HeadlessExcludePatterns": [
   "BepInEx/plugins/Fika/**/*"
