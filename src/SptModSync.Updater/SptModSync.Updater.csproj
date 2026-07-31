@@ -8,14 +8,10 @@
     <LangVersion>latest</LangVersion>
     <RootNamespace>SptModSync.Updater</RootNamespace>
     <AssemblyName>SptModSync.Updater</AssemblyName>
-    <!-- Runs standalone in the game folder, not as an SPT mod - no special OutputPath needed,
-         but keep it isolated from Debug noise. -->
     <OutputPath>bin\$(Configuration)\</OutputPath>
-    <!-- Self-contained so end users never need a separate .NET 9 runtime install just for the updater. -->
     <SelfContained>true</SelfContained>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <PublishSingleFile>true</PublishSingleFile>
-    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
   </PropertyGroup>
 
   <ItemGroup>
