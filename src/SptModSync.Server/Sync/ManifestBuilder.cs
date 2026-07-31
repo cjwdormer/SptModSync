@@ -98,9 +98,18 @@ public sealed class ManifestBuilder
             var headlessIncludeMatcher = new PatternMatcher(config.HeadlessIncludePatterns);
             var headlessExcludeMatcher = new PatternMatcher(config.HeadlessExcludePatterns);
 
-            relativePaths = relativePaths
+            var beforeHeadlessFilter = relativePaths;
+            relativePaths = beforeHeadlessFilter
                 .Where(path => headlessIncludeMatcher.Matches(path))
                 .Where(path => !headlessExcludeMatcher.Matches(path))
+                .ToList();
+
+            var droppedByHeadlessFilter = beforeHeadlessFilter
+                .Except(relativePaths, StringComparer.OrdinalIgnoreCase);
+
+            excludedPaths = excludedPaths
+                .Concat(droppedByHeadlessFilter)
+                .Distinct(StringComparer.OrdinalIgnoreCase)
                 .ToList();
         }
 
