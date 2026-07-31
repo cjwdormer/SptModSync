@@ -25,17 +25,18 @@ public static class DiffEngine
         var serverExcludedPaths = new HashSet<string>(manifest.ExcludedPaths, StringComparer.OrdinalIgnoreCase);
 
         var hasAllowList = clientConfig.IncludePatterns.Count > 0;
+        var excludeMatcher = new PatternMatcher(clientConfig.ExcludePatterns);
+        var includeMatcher = new PatternMatcher(clientConfig.IncludePatterns);
 
         foreach (var entry in manifest.Files)
         {
             var isBlacklisted = manifest.FileHashBlacklist.Contains(entry.Hash, StringComparer.OrdinalIgnoreCase);
-            var isUserExcluded = GlobMatcher.MatchesAny(entry.RelativePath, clientConfig.ExcludePatterns);
+            var isUserExcluded = excludeMatcher.Matches(entry.RelativePath);
             var existsLocally = localFileHashes.TryGetValue(entry.RelativePath, out var localHash);
 
             FileAction action;
 
-            var isAllowed = !hasAllowList
-                            || GlobMatcher.MatchesAny(entry.RelativePath, clientConfig.IncludePatterns);
+            var isAllowed = !hasAllowList || includeMatcher.Matches(entry.RelativePath);
 
             if (isBlacklisted && existsLocally)
             {
@@ -81,7 +82,7 @@ public static class DiffEngine
         {
             if (serverPaths.Contains(trackedPath)) continue;
 
-            var isUserExcluded = GlobMatcher.MatchesAny(trackedPath, clientConfig.ExcludePatterns);
+            var isUserExcluded = excludeMatcher.Matches(trackedPath);
             if (isUserExcluded) continue;
 
             if (serverExcludedPaths.Contains(trackedPath))
