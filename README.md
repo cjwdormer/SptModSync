@@ -1,7 +1,7 @@
 # SPT Mod Sync
 
-Keeps SPT clients in step with the mods on a server. On launch, the client compares what it has
-against what the server is offering, shows you exactly what would change, and applies the changes
+Keeps SPT clients in step with the mods on a server. On launch the client compares what it has
+against what the server is offering, it shows you exactly what would change and applies the changes
 once you agree.
 
 Built for **SPT 4.0.13**. By TheCrimsonFuckr.
@@ -14,8 +14,8 @@ Built for **SPT 4.0.13**. By TheCrimsonFuckr.
 - Updates mods whose files differ from the server's
 - Removes mods the server has dropped
 - Leaves your own mods alone anything the server has never offered is never touched
-- Lets you decline individual files, and remembers that decision
-- Never modifies a running install: everything downloads to a temporary folder first, and files are
+- Lets you decline individual files and remembers that decision
+- Never modifies a running install: everything downloads to a temporary folder first and files are
   only moved into place after the game has closed
 
 ---
@@ -149,7 +149,7 @@ Defaults:
 `..` segments are rejected at startup the mod will refuse to load rather than serve files from
 outside your install.
 
-**Worth excluding:** anything a mod rewrites while running. Caches, generated bundles, and per-user
+**Excluding:** anything a mod rewrites while running. Caches generated bundles and per-user
 settings will otherwise be re-offered on every launch, because their contents genuinely change.
 Per-user config is the common case `SAIN/**/*.json` is excluded by default for exactly this
 reason, since it holds each player's own bot tuning.
@@ -198,8 +198,8 @@ Under `com.thecrimsonfuckr.sptmodsync.client`:
 
 ### Fika headless clients
 
-Headless instances are detected automatically and sync unattended no window, every offer accepted,
-files applied on shutdown. Nothing needs configuring.
+Headless instances are detected automatically and sync unattended no window every offer accepted and
+files applied on shutdown. Nothing needs configuring in this instance by default it should all be good.
 
 Detection uses Unity's batch-mode flag, the `-batchmode`/`-nographics` launch arguments, and the
 presence of Fika's headless plugin. The reason is logged on startup:
@@ -212,7 +212,7 @@ presence of Fika's headless plugin. The reason is logged on startup:
 headless. Don't set it on a client someone plays on: it would apply changes and close the game with
 no prompt.
 
-**Headless clients need a reduced mod set.** They need only a handful of the mods your players run,
+**Headless clients and reduced mod sets.** As they need only a handful of the mods players run,
 and most client plugins will destabilise them. Set `HeadlessIncludePatterns` in `serverConfig.json`
 and headless instances are offered only those for example:
 
@@ -229,7 +229,7 @@ and headless instances are offered only those for example:
 ]
 ```
 
-This lives on the server rather than on each headless client for two reasons: you already know which
+This lives on the server rather than on each headless client for two reasons: you should already know which
 mods are headless-safe, and a newly installed headless instance is then safe with no configuration
 of its own an unset `HeadlessIncludePatterns` offers headless clients nothing at all, rather than
 defaulting to the full player mod set.
@@ -237,7 +237,9 @@ defaulting to the full player mod set.
 `HeadlessIncludePatterns` is an allow-list so it stays correct by itself add a mod server-side and
 headless instances simply don't receive it, with nothing to update. `HeadlessExcludePatterns` exists
 alongside it for the one case an allow-list can't express cleanly: a file you DO want synced to real
-players but never to headless. Fika is that case a headless instance generates its own Fika install
+players but never to headless. 
+
+Fika is that case a headless instance generates its own Fika install
 rather than running the client plugin a real player does, so even though `Fika/**/*` matches
 `HeadlessIncludePatterns` above (it has to, since players need it), `HeadlessExcludePatterns` carves it
 back out for headless only. Regular `ExcludePatterns` can't do this: it applies to every client, so
