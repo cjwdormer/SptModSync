@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using SptModSync.Client.Config;
 using SptModSync.Client.Handoff;
@@ -79,6 +80,8 @@ namespace SptModSync.Client.Sync
             return string.Join(" -> ", parts);
         }
 
+        private const int MaxConcurrentDownloads = 4;
+
         public async Task<PendingOperations?> DownloadAsync(
             ClientConfig config,
             List<DiffResult> diff, HashSet<string> acceptedPaths, SyncProgress progress,
@@ -119,7 +122,8 @@ namespace SptModSync.Client.Sync
             progress.BytesTotal = toDownload.Sum(d => d.Size ?? 0);
 
             var reusedCount = 0;
-            var transport = new SptTransport(_log);
+            var syncLock = new object();
+            var toFetch = new List<DiffResult>();
 
             try
             {
@@ -141,36 +145,20 @@ namespace SptModSync.Client.Sync
                     {
                         case FileAction.Add:
                         case FileAction.Update:
-                            progress.CurrentFile = item.RelativePath;
-
                             var reuseKey = item.RelativePath + "|" + (item.ServerHash ?? "");
                             if (reusable.TryGetValue(reuseKey, out var alreadyStaged))
                             {
                                 _log($"[SptModSync] Reusing previously downloaded {item.RelativePath}.");
                                 pending.Operations.Add(alreadyStaged);
                                 reusedCount++;
+                                progress.FilesDone++;
+                                progress.BytesDone += item.Size ?? 0;
+                                config.TrackedFiles[item.RelativePath] = item.ServerHash ?? "";
                             }
                             else
                             {
-                                var stagedPath = Path.Combine(
-                                    stagingDir, item.RelativePath.Replace('/', Path.DirectorySeparatorChar));
-
-                                _log($"[SptModSync] Downloading {item.RelativePath}...");
-                                await transport.DownloadToAsync(item.RelativePath, stagedPath).ConfigureAwait(false);
-
-                                pending.Operations.Add(new PendingOperation
-                                {
-                                    Kind = PendingOpKind.CopyFromStaging,
-                                    RelativePath = item.RelativePath,
-                                    StagedAbsolutePath = stagedPath,
-                                    DestinationAbsolutePath = destination,
-                                    ExpectedHash = item.ServerHash
-                                });
+                                toFetch.Add(item);
                             }
-
-                            progress.FilesDone++;
-                            progress.BytesDone += item.Size ?? 0;
-                            config.TrackedFiles[item.RelativePath] = item.ServerHash ?? "";
                             break;
 
                         case FileAction.Delete:
@@ -192,6 +180,52 @@ namespace SptModSync.Client.Sync
                             config.TrackedFiles.Remove(item.RelativePath);
                             break;
                     }
+                }
+                if (toFetch.Count > 0)
+                {
+                    var transport = new SptTransport(_log);
+                    using var throttle = new SemaphoreSlim(MaxConcurrentDownloads);
+                    using var _ = SptTransport.ExtendedDownloadTimeout();
+
+                    var downloadTasks = toFetch.Select(async item =>
+                    {
+                        await throttle.WaitAsync().ConfigureAwait(false);
+                        try
+                        {
+                            var stagedPath = Path.Combine(
+                                stagingDir, item.RelativePath.Replace('/', Path.DirectorySeparatorChar));
+                            var destination = Path.Combine(
+                                _gameRootDirectory, item.RelativePath.Replace('/', Path.DirectorySeparatorChar));
+
+                            _log($"[SptModSync] Downloading {item.RelativePath}...");
+                            await transport.DownloadToAsync(item.RelativePath, stagedPath).ConfigureAwait(false);
+
+                            var operation = new PendingOperation
+                            {
+                                Kind = PendingOpKind.CopyFromStaging,
+                                RelativePath = item.RelativePath,
+                                StagedAbsolutePath = stagedPath,
+                                DestinationAbsolutePath = destination,
+                                ExpectedHash = item.ServerHash
+                            };
+
+                            lock (syncLock)
+                            {
+                                pending.Operations.Add(operation);
+                                progress.CurrentFile = item.RelativePath;
+                                config.TrackedFiles[item.RelativePath] = item.ServerHash ?? "";
+                            }
+
+                            Interlocked.Increment(ref progress.FilesDone);
+                            Interlocked.Add(ref progress.BytesDone, item.Size ?? 0);
+                        }
+                        finally
+                        {
+                            throttle.Release();
+                        }
+                    });
+
+                    await Task.WhenAll(downloadTasks).ConfigureAwait(false);
                 }
             }
             catch

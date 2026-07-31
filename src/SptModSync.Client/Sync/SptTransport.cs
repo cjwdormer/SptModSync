@@ -40,17 +40,29 @@ namespace SptModSync.Client.Sync
 
             var route = $"{RoutePrefix}{RouteFile}/" + Uri.EscapeDataString(relativePath);
 
-            var previousTimeout = RequestHandler.HttpClient.HttpClient.Timeout;
-            RequestHandler.HttpClient.HttpClient.Timeout = TimeSpan.FromMinutes(15);
+            await RequestHandler.HttpClient.DownloadAsync(route, stagingAbsolutePath, null).ConfigureAwait(false);
+        }
 
-            try
+        public static IDisposable ExtendedDownloadTimeout(TimeSpan? timeout = null)
+        {
+            var client = RequestHandler.HttpClient.HttpClient;
+            var previous = client.Timeout;
+            client.Timeout = timeout ?? TimeSpan.FromMinutes(15);
+            return new TimeoutScope(client, previous);
+        }
+
+        private sealed class TimeoutScope : IDisposable
+        {
+            private readonly System.Net.Http.HttpClient _client;
+            private readonly TimeSpan _previous;
+
+            public TimeoutScope(System.Net.Http.HttpClient client, TimeSpan previous)
             {
-                await RequestHandler.HttpClient.DownloadAsync(route, stagingAbsolutePath, null).ConfigureAwait(false);
+                _client = client;
+                _previous = previous;
             }
-            finally
-            {
-                RequestHandler.HttpClient.HttpClient.Timeout = previousTimeout;
-            }
+
+            public void Dispose() => _client.Timeout = _previous;
         }
     }
 }
