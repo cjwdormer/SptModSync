@@ -5,7 +5,7 @@
       Stack traces embed the absolute path of every source file as it existed on the build machine,
       which is how "C:\Users\<name>\OneDrive\Desktop\..." ends up in a log shipped to other people.
       PathMap rewrites those to repo-relative paths at compile time, so a trace reads
-      "./src/SptModSync.Client/Sync/SyncClient.cs:43" instead of exposing the developer's folder
+      "./src/TCFModSync.Client/Sync/SyncClient.cs:43" instead of exposing the developer's folder
       layout, account name, and cloud storage setup.
 
       Line numbers are kept - they've been genuinely useful for diagnosing this mod - so this hides
@@ -35,7 +35,7 @@
 
   <!--
     SptInstallDir points at each developer's own SPT game folder (e.g. "E:\Single Player Tarkov"),
-    used by SptModSync.Client.csproj to find BepInEx/UnityEngine/spt-common DLLs that can't be
+    used by TCFModSync.Client.csproj to find BepInEx/UnityEngine/spt-common DLLs that can't be
     redistributed via NuGet. That path is personal machine layout, not project source, so it must
     never be hardcoded in a file that gets committed.
 

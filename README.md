@@ -1,4 +1,4 @@
-# SPT Mod Sync
+# TCF-ModSync
 
 Keeps SPT clients in step with the mods on a server. On launch the client compares what it has
 against what the server is offering, it shows you exactly what would change and applies the changes
@@ -24,9 +24,9 @@ Built for **SPT 4.0.13**. By TheCrimsonFuckr.
 
 | Part | Where it runs | What it does |
 |---|---|---|
-| **SptModSync.Server** | SPT server | Scans the server's mod folders and offers them over HTTP |
-| **SptModSync.Client** | Game client (BepInEx plugin) | Compares, shows the sync window, downloads to a staging folder |
-| **SptModSync.Updater** | Standalone `.exe` | Waits for the game to close, then moves files into place |
+| **TCFModSync.Server** | SPT server | Scans the server's mod folders and offers them over HTTP |
+| **TCFModSync.Client** | Game client (BepInEx plugin) | Compares, shows the sync window, downloads to a staging folder |
+| **TCFModSync.Updater** | Standalone `.exe` | Waits for the game to close, then moves files into place |
 
 The updater is separate on purpose. A plugin can't replace files that the game itself has open, so
 the work has to happen after the game exits by a process that outlives it.

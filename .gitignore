@@ -11,7 +11,7 @@ dist/
 build/Directory.Build.local.props
 
 # Generated at runtime, not source
-src/SptModSync.Server/config/serverConfig.json
+src/TCFModSync.Server/config/serverConfig.json
 **/clientConfig.json
-SptModSync.pending.json
-SptModSync.Updater.log
+TCFModSync.pending.json
+TCFModSync.Updater.log

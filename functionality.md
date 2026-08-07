@@ -24,7 +24,7 @@ Defaults:
 ```json
 {
   "IncludePatterns": [
-    "SptModSync.Updater.exe",
+    "TCFModSync.Updater.exe",
     "BepInEx/patchers/**/*",
     "BepInEx/plugins/**/*"
   ],
@@ -65,7 +65,7 @@ client that was tracking it.
 
 ### `clientConfig.json` - client side
 
-Lives in `<game>\BepInEx\plugins\SptModSync.Client\`. Created automatically; you normally never edit
+Lives in `<game>\BepInEx\plugins\TCF-ModSync.Client\`. Created automatically; you normally never edit
 it.
 
 | Setting | What it does |
@@ -82,7 +82,7 @@ forgotten.
 
 ### Plugin settings - BepInEx F12 menu
 
-Under `com.thecrimsonfuckr.sptmodsync.client`:
+Under `com.thecrimsonfuckr.tcfmodsync.client`:
 
 | Setting | Default | What it does |
 |---|---|---|
@@ -108,7 +108,7 @@ Detection uses Unity's batch-mode flag, the `-batchmode`/`-nographics` launch ar
 presence of Fika's headless plugin. The reason is logged on startup:
 
 ```
-[SptModSync] Headless client detected (Unity reports batch mode) - syncing unattended...
+[TCF-ModSync] Headless client detected (Unity reports batch mode) - syncing unattended...
 ```
 
 `HeadlessAutoAccept` only exists to force this behaviour on an instance that isn't detected as
@@ -200,8 +200,8 @@ long as the server is still offering the same files.
 |---|---|---|
 | `clientConfig.json` | Plugin folder | Your declines and synced-file records |
 | `staged.json` | Plugin folder | Downloads kept for next launch |
-| `SptModSync.pending.json` | Game root | Handoff to the updater. Deleted on success |
-| `SptModSync.Updater.log` | Game root | What the updater did. **Check this first if a sync doesn't apply** |
-| `SptModSync.Client.log` | Plugin folder | Client-side debug log, independent of BepInEx's shared `LogOutput.log` |
-| `SptModSync.Server.log` | Server mod folder | Server-side debug log, independent of the SPT server's shared log |
-| `staging_<id>\` | `%TEMP%\SptModSync\` | Downloads awaiting install |
+| `TCFModSync.pending.json` | Game root | Handoff to the updater. Deleted on success |
+| `TCFModSync.Updater.log` | Game root | What the updater did. **Check this first if a sync doesn't apply** |
+| `TCFModSync.Client.log` | Plugin folder | Client-side debug log, independent of BepInEx's shared `LogOutput.log` |
+| `TCFModSync.Server.log` | Server mod folder | Server-side debug log, independent of the SPT server's shared log |
+| `staging_<id>\` | `%TEMP%\TCFModSync\` | Downloads awaiting install |

@@ -3,8 +3,8 @@
 [← Back to README](README.md)
 
 **Nothing appears on launch.** Either there's genuinely nothing to sync, or the client can't reach
-the server. Check `BepInEx\LogOutput.log` (or the client's own `SptModSync.Client.log`, in the
-plugin folder) for `[SptModSync]` lines it logs the manifest count it received and the number of
+the server. Check `BepInEx\LogOutput.log` (or the client's own `TCFModSync.Client.log`, in the
+plugin folder) for `[TCF-ModSync]` lines it logs the manifest count it received and the number of
 actions it worked out.
 
 **"Sync check failed".** The client syncs over the same connection it already uses to play, so if
@@ -19,7 +19,7 @@ pattern with the exact folder it looked in, which is usually enough to spot it. 
 **Client says 0 files, server says more.** They aren't talking to the same server. Open
 `http://<host>:<port>/manifest` in a browser to see what the server is actually offering.
 
-**Sync completed but nothing changed.** Read `SptModSync.Updater.log`. It records every operation and
+**Sync completed but nothing changed.** Read `TCFModSync.Updater.log`. It records every operation and
 why any failed. A file that's still locked, or a hash that no longer matches, is refused rather than
 applied the log names it.
 

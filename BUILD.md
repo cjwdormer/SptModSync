@@ -23,7 +23,7 @@ Either works fine:
 
 ## 3. Open the solution
 
-Open `SptModSync.sln`. Your IDE should restore NuGet packages automatically on first load. If it
+Open `TCFModSync.sln`. Your IDE should restore NuGet packages automatically on first load. If it
 doesn't, run:
 
 ```
@@ -36,7 +36,7 @@ from the repo root.
 
 BepInEx does not publish to nuget.org — it runs its own feed. `build/NuGet.config` declares it, and
 `build/Directory.Build.props` points restore at that file via `RestoreConfigFile`, so opening
-`SptModSync.sln` or running `dotnet restore` from the repo root should just work with no extra
+`TCFModSync.sln` or running `dotnet restore` from the repo root should just work with no extra
 flags. If you still hit NU1101:
 
 - In Visual Studio, check **Tools > NuGet Package Manager > Package Manager Settings > Package
@@ -49,7 +49,7 @@ game folder, you can reference its DLL directly - the project already does this 
 
 ## 4. Point the Client project at your game's managed DLLs
 
-`SptModSync.Client` needs several DLLs from your own SPT install that can't be redistributed or
+`TCFModSync.Client` needs several DLLs from your own SPT install that can't be redistributed or
 fetched via NuGet - they ship with the game itself (BepInEx core, UnityEngine modules, spt-common).
 The project finds them via an MSBuild property, `SptInstallDir`, rather than a hardcoded path, so
 your personal install location never ends up in a file you'd commit.
@@ -74,7 +74,7 @@ Set the configuration to **Release** and build the whole solution (Build > Rebui
 dotnet build -c Release
 ```
 
-## 6. Expect (and fix) a few compile errors in SptModSync.Server
+## 6. Expect (and fix) a few compile errors in TCFModSync.Server
 
 I wrote `ModEntry.cs` and `ModMetadataInfo.cs` against SPTarkov's documented mod-authoring pattern
 (`IOnLoad`, `AbstractModMetadata`, `ISptLogger<T>`, `[Injectable]`), but couldn't verify the exact
@@ -88,7 +88,7 @@ down and compile against it myself. If the build reports errors here:
    working reference code for this exact pattern if you want a side-by-side comparison - clone it
    and open `2EditDatabase/EditDatabaseValues.cs` for a minimal `ModMetadata` + entry point example.
 
-`SptModSync.Client`, `SptModSync.Shared`, and `SptModSync.Updater` don't depend on any SPT-specific
+`TCFModSync.Client`, `TCFModSync.Shared`, and `TCFModSync.Updater` don't depend on any SPT-specific
 packages (just BepInEx, which is stable and well-documented) so those should build clean.
 
 ## 7. Deploy layout
@@ -96,33 +96,33 @@ packages (just BepInEx, which is stable and well-documented) so those should bui
 After a successful Release build:
 
 ```
-<SPT server>/SPT/user/mods/SptModSync/
-  SptModSync.Server.dll  (+ its dependencies, from src/SptModSync.Server/bin/Release/SptModSync.Server/)
+<SPT server>/SPT/user/mods/TCF-ModSync.Server/
+  TCFModSync.Server.dll  (+ its dependencies, from src/TCFModSync.Server/bin/Release/TCFModSync.Server/)
   config/serverConfig.json
 
 <SPT client>/
-  SptModSync.Updater.exe  (from src/SptModSync.Updater/bin/Release/ - use `dotnet publish` for the
+  TCFModSync.Updater.exe  (from src/TCFModSync.Updater/bin/Release/ - use `dotnet publish` for the
                             self-contained single-file version, see below)
-  BepInEx/plugins/SptModSync/
-    SptModSync.Client.dll  (+ its dependencies, from src/SptModSync.Client/bin/Release/SptModSync.Client/)
+  BepInEx/plugins/TCF-ModSync.Client/
+    TCFModSync.Client.dll  (+ its dependencies, from src/TCFModSync.Client/bin/Release/TCFModSync.Client/)
 ```
 
 For the updater, publish a self-contained single-file build so end users don't need .NET 9 installed
 separately:
 
 ```
-dotnet publish src/SptModSync.Updater -c Release -r win-x64 --self-contained true
+dotnet publish src/TCFModSync.Updater -c Release -r win-x64 --self-contained true
 ```
 
-The output `.exe` (in `src/SptModSync.Updater/bin/Release/net9.0/win-x64/publish/`) goes directly
+The output `.exe` (in `src/TCFModSync.Updater/bin/Release/net9.0/win-x64/publish/`) goes directly
 next to `EscapeFromTarkov.exe`.
 
 ## 8. Testing the full loop
 
 1. Start the SPT server with the mod installed - check the server console for the
-   `[SptModSync] Ready - sharing ... file(s) on the SPT server's own port.` log line.
+   `[TCF-ModSync] Ready - sharing ... file(s) on the SPT server's own port.` log line.
 2. Launch the game with the client plugin installed. Add or change a file under one of your
    `IncludePatterns` on the server side and restart the server to re-scan.
 3. On next client launch you should see the sync window. Accept it, confirm the game closes, and
-   watch `SptModSync.Updater.log` (written next to the updater exe) to see each operation applied
+   watch `TCFModSync.Updater.log` (written next to the updater exe) to see each operation applied
    and the game relaunch.
